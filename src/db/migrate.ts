@@ -30,6 +30,15 @@ if (!existsSync(dbDir)) {
 const sqlite = new Database(DB_FILE_NAME);
 
 try {
+  // Disable foreign-key enforcement during migrations. Drizzle runs each
+  // migration inside a transaction, and `PRAGMA foreign_keys` is a no-op once a
+  // transaction is open — so it must be set here, on the open connection,
+  // before `migrate()` begins. This lets table-rebuild migrations (SQLite's
+  // drop/recreate pattern for ALTER COLUMN) drop a parent table that child
+  // tables still reference. The pragma is connection-scoped and this
+  // connection is short-lived (closed in `finally`).
+  sqlite.pragma("foreign_keys = OFF");
+
   const db = drizzle(sqlite);
   // Resolved relative to process.cwd() (the project root for `next dev`/`next start`).
   migrate(db, { migrationsFolder: "./drizzle" });

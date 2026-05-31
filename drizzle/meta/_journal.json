@@ -15,6 +15,48 @@
       "when": 1780187349816,
       "tag": "0001_friendly_microchip",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1780189904062,
+      "tag": "0002_amusing_slapstick",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1780191243673,
+      "tag": "0003_volatile_cammi",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1780201346082,
+      "tag": "0004_same_famine",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1780202251049,
+      "tag": "0005_acoustic_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1780203876999,
+      "tag": "0006_sturdy_luke_cage",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1780204632576,
+      "tag": "0007_lean_wasp",
+      "breakpoints": true
     }
   ]
 }

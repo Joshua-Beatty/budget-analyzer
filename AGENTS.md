@@ -25,6 +25,13 @@ before considering a change done. Note: a stale `.next/types/validator.ts`
 error can appear after editing routes — it clears on the next `dev`/`build` and
 is not a real error.
 
+Stale typecheck/LSP errors: if `tsc` or the editor reports errors about
+**files that no longer exist** (e.g. `Cannot find module '@/db/settings'`,
+`RouteContext`, deleted `settings-buttons.tsx`), it's the incremental
+TypeScript build cache. Delete the cache files and re-run the typecheck:
+`tsconfig.tsbuildinfo` and `.next/cache/.tsbuildinfo` (both git-ignored). The
+TS server may also need a reload to drop the stale state.
+
 ## Directory layout & conventions
 
 ### `src/app/` — App Router (UI)

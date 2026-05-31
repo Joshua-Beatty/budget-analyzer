@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AccountNicknames } from "./account-nicknames";
+import { Categories } from "./categories";
 import { SimplefinToken } from "./simplefin-token";
 
 export const metadata: Metadata = {
@@ -9,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function Settings() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-start justify-center gap-6 py-32 px-16 bg-white dark:bg-black">
+    <div className="flex flex-col flex-1 items-center bg-zinc-50 font-sans dark:bg-black">
+      <main className="flex flex-1 w-full max-w-3xl flex-col items-start gap-6 py-16 px-16 bg-white dark:bg-black">
         <h1 className="text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
           Settings
         </h1>
@@ -18,6 +19,14 @@ export default function Settings() {
           SimpleFIN
         </h2>
         <SimplefinToken />
+        <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+          Categories
+        </h2>
+        <Categories />
+        <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+          Accounts
+        </h2>
+        <AccountNicknames />
       </main>
     </div>
   );
