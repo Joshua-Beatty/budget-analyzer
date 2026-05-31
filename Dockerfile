@@ -37,20 +37,21 @@ ENV NODE_ENV=production \
     # Database location inside the container; mount a volume here.
     DB_FILE_NAME=/data/prod.db
 
-# Run as the unprivileged `node` user shipped with the base image.
-# Create the data directory and hand ownership to that user.
-RUN mkdir -p /data && chown -R node:node /data
-
 # Standalone server. Its pruned node_modules already include the traced
 # better-sqlite3 native module (kept external via serverExternalPackages).
-COPY --from=builder --chown=node:node /app/.next/standalone ./
-COPY --from=builder --chown=node:node /app/.next/static ./.next/static
-COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 # Drizzle migrations are applied at startup (see src/instrumentation.ts), so
 # the SQL files must be present in the runtime image.
-COPY --from=builder --chown=node:node /app/drizzle ./drizzle
+COPY --from=builder /app/drizzle ./drizzle
 
-USER node
+# Default data directory for the SQLite database.
+RUN mkdir -p /data
+
+# Runs as root by default so a bind-mounted ./data (owned by an arbitrary host
+# UID) is always writable. To drop privileges, set `user: "<uid>:<gid>"` in
+# docker-compose.yml and ensure that user owns the mounted data directory.
 EXPOSE 3000
 VOLUME ["/data"]
 

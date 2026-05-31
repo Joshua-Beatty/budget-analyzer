@@ -16,3 +16,7 @@ services:
     volumes:
       # Persist the SQLite database on the host at ./data.
       - ./data:/data
+    # The container runs as root by default so the bind-mounted ./data is always
+    # writable. To run unprivileged instead, uncomment and set to a user that
+    # owns ./data on the host (e.g. `id -u`:`id -g`), then `mkdir -p ./data`:
+    # user: "1000:1000"
