@@ -9,7 +9,7 @@ type NavItem = {
   icon: React.ReactNode;
 };
 
-function HomeIcon() {
+function CategoriesIcon() {
   return (
     <svg
       className="size-6"
@@ -21,9 +21,8 @@ function HomeIcon() {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M3 10.5 12 3l9 7.5" />
-      <path d="M5 9.5V21h14V9.5" />
-      <path d="M9 21v-6h6v6" />
+      <path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3H4a1 1 0 0 0-1 1v5.59A2 2 0 0 0 3.83 11l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z" />
+      <circle cx="7.5" cy="7.5" r="1" fill="currentColor" />
     </svg>
   );
 }
@@ -42,26 +41,6 @@ function SettingsIcon() {
     >
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-    </svg>
-  );
-}
-
-function SyncIcon() {
-  return (
-    <svg
-      className="size-6"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-7.5-4" />
-      <path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 7.5 4" />
-      <path d="M21 3v5h-5" />
-      <path d="M3 21v-5h5" />
     </svg>
   );
 }
@@ -108,13 +87,8 @@ function RulesIcon() {
 }
 
 const navItems: NavItem[] = [
-  { href: "/", label: "Home", icon: <HomeIcon /> },
-  { href: "/sync", label: "Sync", icon: <SyncIcon /> },
-  {
-    href: "/transactions",
-    label: "Transactions",
-    icon: <TransactionsIcon />,
-  },
+  { href: "/", label: "Transactions", icon: <TransactionsIcon /> },
+  { href: "/categories", label: "Categories", icon: <CategoriesIcon /> },
   { href: "/rules", label: "Rules", icon: <RulesIcon /> },
   { href: "/settings", label: "Settings", icon: <SettingsIcon /> },
 ];

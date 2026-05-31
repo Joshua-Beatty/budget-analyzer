@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { AccountNicknames } from "./account-nicknames";
-import { Categories } from "./categories";
 import { SimplefinToken } from "./simplefin-token";
 
 export const metadata: Metadata = {
@@ -19,10 +18,6 @@ export default function Settings() {
           SimpleFIN
         </h2>
         <SimplefinToken />
-        <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
-          Categories
-        </h2>
-        <Categories />
         <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
           Accounts
         </h2>
