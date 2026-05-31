@@ -378,7 +378,7 @@ export function RulesManager({ initialRules, categories, accounts }: Props) {
               >
                 <input
                   type="checkbox"
-                  className="size-4 accent-zinc-900 dark:accent-zinc-100"
+                  className="size-5 cursor-pointer rounded border-2 border-zinc-400 accent-green-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:border-zinc-500 dark:accent-green-500"
                   checked={form.accountIds.includes(account.id)}
                   onChange={() => toggleAccount(account.id)}
                 />

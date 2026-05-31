@@ -125,7 +125,7 @@ export function ApplyRulesModal({
                       <td className="px-2 py-1">
                         <input
                           type="checkbox"
-                          className="size-4 accent-zinc-900 dark:accent-zinc-100"
+                          className="size-5 cursor-pointer rounded border-2 border-zinc-400 accent-green-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:border-zinc-500 dark:accent-green-500"
                           aria-label="Apply this change"
                           checked={!skip}
                           disabled={applying}

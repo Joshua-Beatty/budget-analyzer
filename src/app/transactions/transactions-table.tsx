@@ -54,6 +54,11 @@ const pageButtonClass =
 const pageButtonActiveClass =
   "min-w-8 rounded-md border border-zinc-900 bg-zinc-900 px-2 py-1 text-sm font-medium text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-black";
 
+// Larger checkbox with a visible border when unchecked and a strong green fill
+// when checked, so the two states are easy to tell apart at a glance.
+const checkboxClass =
+  "size-5 cursor-pointer rounded border-2 border-zinc-400 accent-green-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:border-zinc-500 dark:accent-green-500";
+
 /**
  * Build a compact list of page numbers (1-based) with `"ellipsis"` gaps, always
  * showing the first, last, current, and the neighbors of the current page.
@@ -321,6 +326,24 @@ export function TransactionsTable({
     updateParams({ sort: columnId, dir: nextDir, page: "0" });
   }
 
+  /** Whether any account/category/inspected/shared filter is active. */
+  const hasActiveFilters =
+    state.accountId !== undefined ||
+    state.category !== undefined ||
+    state.inspected !== undefined ||
+    state.shared !== undefined;
+
+  /** Reset all filters (and pagination) while keeping the sort. */
+  function clearFilters() {
+    updateParams({
+      account: undefined,
+      category: undefined,
+      inspected: undefined,
+      shared: undefined,
+      page: "0",
+    });
+  }
+
   const columns = useMemo<ColumnDef<TransactionRow>[]>(
     () => [
       {
@@ -414,7 +437,7 @@ export function TransactionsTable({
           return (
             <input
               type="checkbox"
-              className="size-4 accent-zinc-900 dark:accent-zinc-100"
+              className={checkboxClass}
               checked={row.inspected !== null}
               onChange={(event) =>
                 handleFlagChange(row, "inspected", event.target.checked)
@@ -431,7 +454,7 @@ export function TransactionsTable({
           return (
             <input
               type="checkbox"
-              className="size-4 accent-zinc-900 dark:accent-zinc-100"
+              className={checkboxClass}
               checked={row.shared !== null}
               onChange={(event) =>
                 handleFlagChange(row, "shared", event.target.checked)
@@ -538,6 +561,14 @@ export function TransactionsTable({
             <option value="0">Not shared</option>
           </select>
         </label>
+        <button
+          type="button"
+          className={buttonClass}
+          disabled={isPending || !hasActiveFilters}
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
         {isPending ? (
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             Loading…
