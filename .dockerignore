@@ -1,0 +1,31 @@
+# Dependencies (reinstalled inside the image)
+node_modules
+
+# Next.js build output
+.next
+out
+build
+
+# Local SQLite database files
+db
+data
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Env files (provide via compose/runtime instead)
+.env
+.env.*
+!.env.example
+
+# Tooling / VCS / misc
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+*.tsbuildinfo
+.vercel
+.DS_Store
+npm-debug.log*

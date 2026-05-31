@@ -1,0 +1,18 @@
+services:
+  budget-analyzer:
+    # Build straight from the main branch on GitHub. To build from a local
+    # checkout instead, replace `build` with `build: .`.
+    build:
+      context: https://github.com/Joshua-Beatty/budget-analyzer.git#main
+    image: budget-analyzer
+    container_name: budget-analyzer
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Path to the SQLite database file inside the container. It lives under
+      # /data, which is the mounted volume below, so the database persists.
+      DB_FILE_NAME: /data/prod.db
+    volumes:
+      # Persist the SQLite database on the host at ./data.
+      - ./data:/data
