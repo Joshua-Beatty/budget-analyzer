@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   description: "Define rules that assign categories to transactions.",
 };
 
+// Reads the database at render time, so it must not be prerendered at build
+// time (when no database exists yet, e.g. during `docker build`).
+export const dynamic = "force-dynamic";
+
 export default async function Rules() {
   const [rules, categories, accounts] = await Promise.all([
     getRules(),
