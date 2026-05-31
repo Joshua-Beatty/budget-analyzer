@@ -84,6 +84,35 @@ function formatDate(epochSeconds: number): string {
   return new Date(epochSeconds * 1000).toISOString().slice(0, 10);
 }
 
+/**
+ * Copy text to the clipboard, falling back to a hidden textarea +
+ * `document.execCommand("copy")` when the async Clipboard API is unavailable
+ * (e.g. when served over plain HTTP on a LAN IP — a non-secure context).
+ */
+async function copyToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  // Keep it out of view and avoid scrolling/zoom side effects.
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.setAttribute("readonly", "");
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const ok = document.execCommand("copy");
+    if (!ok) {
+      throw new Error("Copy command was rejected by the browser.");
+    }
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
 const SORTABLE: ReadonlySet<string> = new Set([
   "posted",
   "amount",
@@ -257,7 +286,7 @@ export function TransactionsTable({
             ].join("\t");
           })
           .join("\n");
-        await navigator.clipboard.writeText(text);
+        await copyToClipboard(text);
         setExportStatus(`Copied ${rows.length} transactions to clipboard.`);
       } catch (error) {
         setExportStatus(`Export failed: ${String(error)}`);
