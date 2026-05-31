@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   description: "Sync accounts and transactions from SimpleFIN.",
 };
 
+// Reads the database at render time, so it must not be prerendered at build
+// time (when no database exists yet, e.g. during `docker build`).
+export const dynamic = "force-dynamic";
+
 export default async function Sync() {
   const [hasToken, lastSyncAt] = await Promise.all([
     haveToken(),
