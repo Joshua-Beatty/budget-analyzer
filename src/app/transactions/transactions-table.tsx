@@ -11,6 +11,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -21,6 +22,7 @@ import {
 import type { RulePreview } from "@/app/actions/rules-types";
 import {
   getTransactionsForExport,
+  getTransactionsPage,
   setFlagForFilter,
   setTransactionCategory,
   setTransactionFlag,
@@ -131,6 +133,8 @@ type Props = {
   state: {
     page: number;
     pageSize: number;
+    /** When true, rows load on scroll instead of via page controls. */
+    infinite: boolean;
     sort: TransactionSort;
     dir: SortDir;
     accountId?: string;
@@ -154,9 +158,89 @@ export function TransactionsTable({
   // Local copy of the page rows so inline edits (category/flags) reflect
   // immediately. Re-seeded whenever the server provides a new page.
   const [rows, setRows] = useState<TransactionRow[]>(page.rows);
+  // Infinite scroll: how many pages are loaded so far, plus a generation
+  // counter so a fetch started before a re-seed can't append stale rows.
+  const nextPageRef = useRef(1);
+  const generationRef = useRef(0);
+  const loadingMoreRef = useRef(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     setRows(page.rows);
+    nextPageRef.current = 1;
+    generationRef.current += 1;
+    loadingMoreRef.current = false;
+    setLoadingMore(false);
+    setLoadMoreError(null);
   }, [page.rows]);
+
+  const hasMore = state.infinite && rows.length < page.total;
+
+  /** Fetch the next page for the current sort/filter and append it. */
+  const loadMore = useCallback(async () => {
+    if (loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+    setLoadMoreError(null);
+    const generation = generationRef.current;
+    try {
+      const next = await getTransactionsPage({
+        page: nextPageRef.current,
+        pageSize: state.pageSize,
+        sort: state.sort,
+        dir: state.dir,
+        accountId: state.accountId,
+        category: state.category,
+        inspected: state.inspected,
+        shared: state.shared,
+      });
+      // The table was re-seeded (filter/sort change or refresh) meanwhile.
+      if (generation !== generationRef.current) return;
+      nextPageRef.current += 1;
+      setRows((prev) => {
+        // Skip rows already present, in case the data shifted between fetches.
+        const seen = new Set(prev.map((r) => `${r.accountId}\u0000${r.id}`));
+        return [
+          ...prev,
+          ...next.rows.filter((r) => !seen.has(`${r.accountId}\u0000${r.id}`)),
+        ];
+      });
+    } catch (error) {
+      if (generation === generationRef.current) {
+        setLoadMoreError(`Failed to load more: ${String(error)}`);
+      }
+    } finally {
+      if (generation === generationRef.current) {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
+      }
+    }
+  }, [
+    state.pageSize,
+    state.sort,
+    state.dir,
+    state.accountId,
+    state.category,
+    state.inspected,
+    state.shared,
+  ]);
+
+  // Load the next page whenever the sentinel below the table scrolls into
+  // view. Re-created after each load so a still-visible sentinel fires again.
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!hasMore || loadingMore || loadMoreError !== null || !sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) void loadMore();
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loadMoreError, loadMore]);
 
   // Active category ids, to decide whether a row's assigned category is still
   // selectable or was soft-deleted (shown read-only).
@@ -272,6 +356,7 @@ export function TransactionsTable({
   /**
    * Copy every filtered transaction to the clipboard as tab-separated lines:
    * `M/D/YYYY\t<amount>\t\t<category>\t<description>` (no header row).
+   * Amounts are exported with their sign flipped (spending is positive).
    */
   function handleExport() {
     setExportStatus(null);
@@ -284,7 +369,7 @@ export function TransactionsTable({
             const date = `${d.getUTCMonth() + 1}/${d.getUTCDate()}/${d.getUTCFullYear()}`;
             return [
               date,
-              fromCents(row.amount),
+              fromCents(-row.amount),
               "",
               row.categoryName ?? "",
               row.description,
@@ -569,6 +654,20 @@ export function TransactionsTable({
         >
           Clear filters
         </button>
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+          <input
+            type="checkbox"
+            className={checkboxClass}
+            checked={state.infinite}
+            onChange={(event) =>
+              updateParams({
+                infinite: event.target.checked ? "1" : undefined,
+                page: "0",
+              })
+            }
+          />
+          Infinite scroll
+        </label>
         {isPending ? (
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             Loading…
@@ -671,7 +770,7 @@ export function TransactionsTable({
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-zinc-100 last:border-0 dark:border-zinc-900"
+                className="border-b border-zinc-100 last:border-0 even:bg-zinc-100/70 hover:bg-blue-50 dark:border-zinc-900 dark:even:bg-zinc-900/60 dark:hover:bg-zinc-800"
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
@@ -691,7 +790,37 @@ export function TransactionsTable({
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+      {state.infinite ? (
+        <div
+          ref={sentinelRef}
+          className="flex flex-wrap items-center gap-3 pb-4 text-sm text-zinc-600 dark:text-zinc-400"
+        >
+          <span>
+            Showing {rows.length} of {page.total}
+          </span>
+          {loadingMore ? <span>Loading more…</span> : null}
+          {loadMoreError !== null ? (
+            <>
+              <span className="text-red-600 dark:text-red-400">
+                {loadMoreError}
+              </span>
+              <button
+                type="button"
+                className={buttonClass}
+                onClick={() => void loadMore()}
+              >
+                Retry
+              </button>
+            </>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div
+        className={`flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-600 dark:text-zinc-400 ${
+          state.infinite ? "hidden" : ""
+        }`}
+      >
         <div className="flex flex-wrap items-center gap-1">
           <button
             type="button"

@@ -41,7 +41,11 @@ export default async function Home({
   const params = await searchParams;
 
   const pageParam = Number.parseInt(first(params.page) ?? "", 10);
-  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 0;
+  // Infinite-scroll mode always starts from the first page; the table loads
+  // further pages on demand as the user scrolls.
+  const infinite = first(params.infinite) === "1";
+  const page =
+    !infinite && Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 0;
 
   const pageSizeParam = Number.parseInt(first(params.pageSize) ?? "", 10);
   const pageSize = (PAGE_SIZES as readonly number[]).includes(pageSizeParam)
@@ -128,6 +132,7 @@ export default async function Home({
             state={{
               page,
               pageSize,
+              infinite,
               sort,
               dir,
               accountId,
