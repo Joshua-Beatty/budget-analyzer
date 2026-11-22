@@ -120,6 +120,13 @@ async function copyToClipboard(text: string): Promise<void> {
   }
 }
 
+/**
+ * Whether to render the "Infinite scroll" toggle. Infinite scroll is the
+ * default, so the toggle is hidden; paged mode is still reachable with
+ * `?infinite=0`. Flip this to `true` to bring the toggle back.
+ */
+const SHOW_INFINITE_TOGGLE: boolean = false;
+
 const SORTABLE: ReadonlySet<string> = new Set([
   "posted",
   "amount",
@@ -654,20 +661,23 @@ export function TransactionsTable({
         >
           Clear filters
         </button>
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-          <input
-            type="checkbox"
-            className={checkboxClass}
-            checked={state.infinite}
-            onChange={(event) =>
-              updateParams({
-                infinite: event.target.checked ? "1" : undefined,
-                page: "0",
-              })
-            }
-          />
-          Infinite scroll
-        </label>
+        {SHOW_INFINITE_TOGGLE ? (
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <input
+              type="checkbox"
+              className={checkboxClass}
+              checked={state.infinite}
+              onChange={(event) =>
+                updateParams({
+                  // Infinite is the default, so only paged mode needs a param.
+                  infinite: event.target.checked ? undefined : "0",
+                  page: "0",
+                })
+              }
+            />
+            Infinite scroll
+          </label>
+        ) : null}
         {isPending ? (
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             Loading…

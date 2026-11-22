@@ -41,9 +41,10 @@ export default async function Home({
   const params = await searchParams;
 
   const pageParam = Number.parseInt(first(params.page) ?? "", 10);
+  // Infinite scroll is the default; `?infinite=0` opts back into paged mode.
   // Infinite-scroll mode always starts from the first page; the table loads
   // further pages on demand as the user scrolls.
-  const infinite = first(params.infinite) === "1";
+  const infinite = first(params.infinite) !== "0";
   const page =
     !infinite && Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 0;
 
